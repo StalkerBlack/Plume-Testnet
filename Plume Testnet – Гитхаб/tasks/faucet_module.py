@@ -8,7 +8,7 @@ from data.config import FAUCET
 
 def token_extraction():
     # Настройки CapMonster
-    client_options = ClientOptions(api_key="")
+    client_options = ClientOptions(api_key="") #Тут нужно вставить API с Cap Monster
     cap_monster_client = CapMonsterClient(options=client_options)
 
 
