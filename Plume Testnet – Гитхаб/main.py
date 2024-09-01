@@ -41,13 +41,13 @@ print('************************************************************************'
 for account in ACCOUNTS:
     sleep(33, 368)
     try:
-        print_with_time(f"\033[33m Processing faucet for {account['name']}\033[0m")
+        print_with_time(f"\033[33m Запрашиваем токены для {account['name']}\033[0m")
 
         # Создание клиента для каждого аккаунта
         client = Client(private_key=account['private_key'], network=Plume)
 
         if not client.w3.is_connected():
-            print_with_time(f"\033[31m Failed to connect for {account['name']}\033[0m")
+            print_with_time(f"\033[31m Не удалось подключиться: {account['name']}\033[0m")
             continue
 
         captcha_token = token_extraction()
@@ -71,7 +71,7 @@ for account in ACCOUNTS:
         )
 
         data = response.json()
-        contract = faucet()
+        contract = faucet(client)
 
         token = "ETH"
         # token = "GOON"
@@ -86,12 +86,12 @@ for account in ACCOUNTS:
             )
 
         if tx_hash:
-            print_with_time(f"\033[32m Vote transaction sent for {account['name']} with hash: {tx_hash.hex()}\033[0m")
+            print_with_time(f"\033[32m Токены '{token}' для {account['name']} успешно запрошены!!! Hash: {tx_hash.hex()}\033[0m")
         else:
-            print_with_time(f"\033[31m Vote failed for {account['name']}\033[0m")
+            print_with_time(f"\033[31m Не удалось запросить токены с {account['name']}\033[0m")
 
     except Exception as e:
-        print_with_time(f"\033[31m An error occurred for {account['name']}: {str(e)}\033[0m")
+        print_with_time(f"\033[31m Возникла ошибка {account['name']}: {str(e)}\033[0m")
 print('************************************************************************')
 print_with_time(f'\033[32m Токены "{token}" с крана на всех аккаунтах запрошены\033[0m')
 print('************************************************************************')
@@ -102,7 +102,7 @@ print('************************************************************************'
 for account in ACCOUNTS:
     sleep(33, 368)
     try:
-        print_with_time(f"\033[33m Processing votes for {account['name']}\033[0m")
+        print_with_time(f"\033[33m Выполнение задания с голосованием {account['name']}\033[0m")
 
         # Создание клиента для каждого аккаунта
         client = Client(private_key=account['private_key'], network=Plume, proxies=account.get("proxies", None))
@@ -119,14 +119,14 @@ for account in ACCOUNTS:
             tx_hash = vote(client=client)
 
             if tx_hash:
-                print_with_time(f"\033[32m Vote transaction sent for {account['name']} with hash: {tx_hash.hex()}\033[0m")
+                print_with_time(f"\033[32m Успешно проголосованно на {account['name']}!!! Hash: {tx_hash.hex()}\033[0m")
             else:
-                print_with_time(f"\033[31m Vote failed for {account['name']}\033[0m")
+                print_with_time(f"\033[31m Не удалось проголосовать {account['name']}\033[0m")
 
             sleep(22, 63)
  
     except Exception as e:
-        print_with_time(f"\033[31m An error occurred for {account['name']}: {str(e)}\033[0m")
+        print_with_time(f"\033[31m Возникла ошибка {account['name']}: {str(e)}\033[0m")
 print('************************************************************************')
 print_with_time(f'\033[32m Голосование на всех аккаунтах: Завершенно\033[0m')
 print('************************************************************************')
