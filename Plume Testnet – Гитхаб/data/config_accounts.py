@@ -27,4 +27,5 @@ ACCOUNTS = [
             "Sec-Fetch-Site": "same-site",
             "User-Agent": ""
         }
-    },
+    }
+]
