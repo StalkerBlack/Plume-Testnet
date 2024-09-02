@@ -19,7 +19,7 @@ from settings import GLOBAL_NETWORK
 
 
 logger.remove()
-logger.add(sys.stdout,
+logger.add(sink=sys.stdout,
            backtrace=True,
            level="INFO",
            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <7}</level> | <cyan>{message}</cyan>"
@@ -129,7 +129,7 @@ class Runner:
             return PROXIES[private_key_index % len(PROXIES)]
 
         except Exception as error:
-            logger.error(f"Не удалось получить прокси для {index} аккаунта: {error}")
+            logger.info(f"{index} кошелек запускается без прокси: {error}")
 
 
     async def run(self):
@@ -145,7 +145,7 @@ class Runner:
 
         while True:
             action = int(input("Выберите действие: "))
-            logger.info("Вы выбрали {action} действие.")
+            logger.info(f"Вы выбрали {action} действие.")
 
             for index, private_key in enumerate(PRIVATE_KEYS, start=1):
                 proxy = await self.get_proxy_for_account(index=index, private_key=private_key)
