@@ -141,7 +141,7 @@ Plume = Network(
     chain_id=161221135,
     eip1559_tx=True,
     coin_symbol='ETH',
-    explorer='https://testnet-explorer.plumenetwork.xyz/',
+    explorer='https://testnet-explorer.plumenetwork.xyz/tx/',
 )
 
 
