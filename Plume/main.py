@@ -1,4 +1,5 @@
 import asyncio
+import random
 import requests
 import sys
 
@@ -15,7 +16,7 @@ from tasks.check_in_module import CheckInWorker
 # from tasks.faucet_module import token_extraction, faucet
 # from tasks.vote_module import vote_1, vote_2, vote_3
 # from tasks.cultured_module import cultured
-from settings import GLOBAL_NETWORK
+from settings import GLOBAL_NETWORK, SLEEP_MODE, SLEEP_TIME
 
 
 logger.remove()
@@ -131,6 +132,11 @@ class Runner:
         except Exception as error:
             logger.info(f"{index} кошелек запускается без прокси: {error}")
 
+    async def smart_sleep(self):
+        if SLEEP_MODE:
+            duration = random.randint(*SLEEP_TIME)
+            logger.info(f"💤 Спим {duration} секунд")
+            await asyncio.sleep(duration)
 
     async def run(self):
         logger.info("Всем привет! Большой благодарностью будет звездочка на гитхабе: https://github.com/StalkerBlack/Plume-Testnet")
@@ -163,12 +169,12 @@ class Runner:
 
                 if action == 2:
                     pass
-                    # client = Client()
 
                 if action == 3:
                     pass
-                    # client = Client()
- 
+
+                await self.smart_sleep()
+
 
 if __name__ == "__main__":
     runner = Runner()
