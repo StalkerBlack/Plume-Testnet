@@ -173,4 +173,3 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner()
     asyncio.run(runner.run())
-    # asyncio.run(main())
