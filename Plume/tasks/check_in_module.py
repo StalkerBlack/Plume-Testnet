@@ -24,10 +24,10 @@ class CheckInWorker:
 
         check_in_data = implementation_contract.functions.checkIn()._encode_transaction_data()
 
-        tx_hash = self.client.send_transaction(
+        tx_hash = await self.client.send_transaction(
             to=PROXY_CONTRACT_ADDRESS,
             data=check_in_data
         )
-        logger.info(f"Tx hash for check in: {tx_hash}")
+        logger.info(f"Хэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}")
         return tx_hash
 
