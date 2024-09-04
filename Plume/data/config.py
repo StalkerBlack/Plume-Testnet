@@ -17,11 +17,5 @@ FAUCET = os.path.join(ABIS_DIR, 'faucet.json')
 VOTE = os.path.join(ABIS_DIR, 'vote.json')
 
 CULTURED = os.path.join(ABIS_DIR, 'cultured.json')
-
-
-
-
-
-
-
-
+# аби для деплоя RWA (Real world asset)
+RWA_DEPLOY_ABI = os.path.join(ABIS_DIR, "rwa_deploy.json")
