@@ -109,9 +109,7 @@ class Client:
             tx_params['value'] = value
 
         try:
-            logger.info(f"Выполняем estimate_gas для {self.address} | {tx_params}")
             tx_params['gas'] = int(await self.w3.eth.estimate_gas(tx_params) * increase_gas)
-            logger.info(f"Выполняем send_transaction для {self.address} | {tx_params}")
 
         except Web3RPCError as error:
             logger.error(f"Не удалось выполнить estimate_gas для {self.address} | {error}")
