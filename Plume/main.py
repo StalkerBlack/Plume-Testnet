@@ -1,16 +1,17 @@
 import asyncio
 import random
-import requests
 import sys
 
 
 from loguru import logger
 from typing import Sequence
 
-from Plume.tasks.vote_module import VoteWorker
+
 from client import Client
 from config import PRIVATE_KEYS, PROXIES
 from tasks.check_in_module import CheckInWorker
+from tasks.vote_module import VoteWorker
+from tasks.rwa_deploy_module import RWADeployWorker
 # from data.config_accounts import ACCOUNTS
 # from models import Plume, sleep, print_with_time, check_proxy_ip
 # from tasks.check_in_module import check_in
@@ -70,14 +71,15 @@ class Runner:
         logger.info("Всем привет! Большой благодарностью будет звездочка на Github: https://github.com/StalkerBlack/Plume-Testnet")
         logger.info(
             """ 
-            1 - CHECK IN         Регистрация
-            2 - VOTING           Голосование
-            3 - STONKS           Ставки
+            1 - CHECK IN           Регистрация
+            2 - VOTING             Голосование
+            3 - STONKS             Ставки
+            4 - CREATE TOKEN (NFT) Создание Токена
             
             """
         )
         private_keys: list[str] = self.get_private_keys()
-
+        print(private_keys)
         while True:
             action = int(input("Выберите действие: "))
             logger.info(f"Вы выбрали {action} действие.")
@@ -102,6 +104,10 @@ class Runner:
 
                 if action == 3:
                     pass
+
+                if action == 4:
+                    deploy_worker = RWADeployWorker(client=client)
+                    await deploy_worker.deploy()
 
                 await self.smart_sleep()
 
