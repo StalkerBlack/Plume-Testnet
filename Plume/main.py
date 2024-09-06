@@ -3,46 +3,52 @@ import random
 import sys
 
 
+from datetime import timedelta, datetime
 from loguru import logger
-from typing import Sequence
-
+from typing import Sequence, List, Dict
 
 from client import Client
 from config import PRIVATE_KEYS, PROXIES
 from tasks.check_in_module import CheckInWorker
 from tasks.vote_module import VoteWorker
 from tasks.rwa_deploy_module import RWADeployWorker
-# from data.config_accounts import ACCOUNTS
-# from models import Plume, sleep, print_with_time, check_proxy_ip
-# from tasks.check_in_module import check_in
-# from tasks.faucet_module import token_extraction, faucet
-# from tasks.vote_module import vote_1, vote_2, vote_3
-# from tasks.cultured_module import cultured
-from settings import GLOBAL_NETWORK, SLEEP_MODE, SLEEP_TIME, WALLETS_TO_WORK, SHUFFLE_WALLETS
+
+
+from settings import (
+    GLOBAL_NETWORK,
+    SLEEP_MODE,
+    SLEEP_TIME,
+    WALLETS_TO_WORK,
+    SHUFFLE_WALLETS,
+)
 
 
 logger.remove()
-logger.add(sink=sys.stdout,
-           backtrace=True,
-           level="INFO",
-           format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <7}</level> | <cyan>{message}</cyan>"
-           )
+logger.add(
+    sink=sys.stdout,
+    backtrace=True,
+    level="INFO",
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <7}</level> | <cyan>{message}</cyan>",
+)
 
 
 class Runner:
 
     async def get_proxy_for_account(self, index: int, private_key: str):
         try:
-            private_key_index = PRIVATE_KEYS.index(private_key) + 1
+            private_key_index = PRIVATE_KEYS.index(private_key)
             return PROXIES[private_key_index % len(PROXIES)]
 
         except Exception as error:
             logger.info(f"{index} кошелек запускается без прокси: {error}")
 
-    async def smart_sleep(self):
+    async def smart_sleep(self, address: str):
         if SLEEP_MODE:
             duration = random.randint(*SLEEP_TIME)
-            logger.info(f"💤 Спим {duration} секунд")
+            next_run_time = datetime.now() + timedelta(seconds=duration)
+            logger.info(
+                f"💤 Следующее действия для кошелька {address} будет выполнено: {next_run_time.strftime('%Y-%m-%d %H:%M:%S')}"
+            )
             await asyncio.sleep(duration)
 
     def get_private_keys(self):
@@ -68,37 +74,63 @@ class Runner:
         return private_keys
 
     async def run(self):
-        logger.info("Всем привет! Большой благодарностью будет звездочка на Github: https://github.com/StalkerBlack/Plume-Testnet")
+        logger.info(f"Запуск софта")
         logger.info(
-            """ 
+            "Всем привет! Большой благодарностью будет звездочка на Github: https://github.com/StalkerBlack/Plume-Testnet"
+        )
+        logger.info(
+            """
             1 - CHECK IN           Регистрация
             2 - VOTING             Голосование
             3 - STONKS             Ставки
             4 - CREATE TOKEN (NFT) Создание Токена
-            
+
             """
         )
-        private_keys: list[str] = self.get_private_keys()
-        print(private_keys)
-        while True:
-            action = int(input("Выберите действие: "))
-            logger.info(f"Вы выбрали {action} действие.")
+        self.private_keys: list[str] = self.get_private_keys()
+        logger.info(f"Получено приватных ключей: {len(self.private_keys)}")
+        actions_hashmap: Dict[int, str] = {
+            1: "Check In",
+            2: "Voting",
+            4: "RWA Create Token",
+        }
+        index = 0
 
-            for index, private_key in enumerate(private_keys, start=1):
-                proxy = await self.get_proxy_for_account(index=index, private_key=private_key)
-                logger.info(f"Wallet № {index} | Use Proxy: {bool(proxy)}")
+        while self.private_keys:
 
-                client = Client(number=index,
-                                private_key=private_key,
-                                network=GLOBAL_NETWORK,
-                                proxy=proxy
-                                )
+            wallet_index: int = random.randint(0, len(self.private_keys))
+            private_key: str = self.private_keys[wallet_index]
+
+            available_actions: List[int] = [1, 2, 4]
+
+            while available_actions:
+                action = random.choice(available_actions)
+                available_actions.remove(action)
+                proxy = await self.get_proxy_for_account(
+                    index=wallet_index, private_key=private_key
+                )
+                logger.info(
+                    f"Wallet № {wallet_index + 1} | Action № {action} | Use Proxy: {bool(proxy)}"
+                )
+
+                client = Client(
+                    number=index + 1,
+                    private_key=private_key,
+                    network=GLOBAL_NETWORK,
+                    proxy=proxy,
+                )
 
                 if action == 1:
+                    logger.info(
+                        f"Запуск check in для {client.number} кошелька | Адрес: {client.address}"
+                    )
                     check_in_worker = CheckInWorker(client=client)
                     await check_in_worker.check_in()
 
                 if action == 2:
+                    logger.info(
+                        f"Запуск голосования для {client.number} кошелька | Адрес: {client.address}"
+                    )
                     vote_worker = VoteWorker(client=client)
                     await vote_worker.vote()
 
@@ -106,10 +138,15 @@ class Runner:
                     pass
 
                 if action == 4:
+                    logger.info(
+                        f"Создание токена для {client.number} кошелька | Адрес: {client.address}"
+                    )
                     deploy_worker = RWADeployWorker(client=client)
                     await deploy_worker.deploy()
 
-                await self.smart_sleep()
+                await self.smart_sleep(client.address)
+
+            index += 1
 
 
 if __name__ == "__main__":
