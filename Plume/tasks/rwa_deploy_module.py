@@ -1,9 +1,11 @@
-import asyncio
 import random
 
 
 from faker import Faker
 from loguru import logger
+from typing import Dict, Any
+from web3 import Web3
+from web3.eth.async_eth import AsyncContract, ChecksumAddress
 
 
 from Plume.client import Client
@@ -17,12 +19,18 @@ class RWADeployWorker:
         self.abi = read_json(RWA_DEPLOY_ABI)
 
     async def deploy(self):
-        PROXY_CONTRACT_ADDRESS = '0x485D972889Ee8fd0512403E32eE94dE5c7a5DC7b'
-        IMPLEMENTATION_CONTRACT_ADDRESS = '0xe1F9e3D1293f92c1dF87aeC9258C5EE68ebF6087'
+        PROXY_CONTRACT_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
+            "0x485D972889Ee8fd0512403E32eE94dE5c7a5DC7b"
+        )
+        IMPLEMENTATION_CONTRACT_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
+            "0xe1F9e3D1293f92c1dF87aeC9258C5EE68ebF6087"
+        )
 
-        implementation_contract = self.client.w3.eth.contract(address=IMPLEMENTATION_CONTRACT_ADDRESS, abi=self.abi)
+        implementation_contract: AsyncContract = self.client.w3.eth.contract(
+            address=IMPLEMENTATION_CONTRACT_ADDRESS, abi=self.abi
+        )
 
-        random_image = random.choice(
+        random_image: Dict[str, Any] = random.choice(
             [
                 {
                     "image": f"https://miles.plumenetwork.xyz/images/arc/art.webp",
@@ -68,23 +76,29 @@ class RWADeployWorker:
         )
 
         fake = Faker()
-        data = {
-                    "name": f"{fake.name()}",
-                    "symbol": "ITEM",
-                    "description": f"{fake.text(random.randint(10, 30))}",
-                }
+        data: Dict[str, str] = {
+            "name": f"{fake.name()}",
+            "symbol": "ITEM",
+            "description": f"{fake.text(random.randint(10, 30))}",
+        }
 
         data.update(random_image)
         print(data)
 
-        check_in_data = implementation_contract.functions.createToken(**data)._encode_transaction_data()
+        check_in_data = implementation_contract.functions.createToken(
+            **data
+        )._encode_transaction_data()
 
         tx_hash = await self.client.send_transaction(
-            to=PROXY_CONTRACT_ADDRESS,
-            data=check_in_data
+            to=PROXY_CONTRACT_ADDRESS, data=check_in_data
         )
         if tx_hash:
-            logger.info(f"Хэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}")
+            logger.info(
+                f"Хэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}"
+            )
+        else:
+            logger.info(
+                f"Не удалось выполнить RWA Create Token на {self.client.number} кошельке: {self.client.address}"
+            )
 
-        # await asyncio.sleep()
-        return tx_hash
+        return
