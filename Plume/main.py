@@ -47,7 +47,7 @@ class Runner:
             duration = random.randint(*SLEEP_TIME)
             next_run_time = datetime.now() + timedelta(seconds=duration)
             logger.info(
-                f"💤 Следующее действия для кошелька {address} будет выполнено: {next_run_time.strftime('%Y-%m-%d %H:%M:%S')}"
+                f"💤 Следующее действие для кошелька {address} будет выполнено: {next_run_time.strftime('%Y-%m-%d %H:%M:%S')}"
             )
             await asyncio.sleep(duration)
 
@@ -87,8 +87,9 @@ class Runner:
 
             """
         )
-        self.private_keys: list[str] = self.get_private_keys()
+        self.private_keys: list[str] = self.get_private_keys().copy()
         logger.info(f"Получено приватных ключей: {len(self.private_keys)}")
+
         actions_hashmap: Dict[int, str] = {
             1: "Check In",
             2: "Voting",
@@ -97,15 +98,13 @@ class Runner:
         index = 0
 
         while self.private_keys:
+            wallet_index: int = random.choice(range(len(self.private_keys)))
+            private_key: str = self.private_keys.pop(wallet_index)
 
-            wallet_index: int = random.randint(0, len(self.private_keys))
-            private_key: str = self.private_keys[wallet_index]
-
-            available_actions: List[int] = [1, 2, 4]
-
-            while available_actions:
-                action = random.choice(available_actions)
-                available_actions.remove(action)
+            while actions_hashmap:
+                action: int = random.choice(actions_hashmap)
+                module_name: str = actions_hashmap.pop(action)
+                # available_actions.remove(action)
                 proxy = await self.get_proxy_for_account(
                     index=wallet_index, private_key=private_key
                 )
@@ -122,27 +121,45 @@ class Runner:
 
                 if action == 1:
                     logger.info(
-                        f"Запуск check in для {client.number} кошелька | Адрес: {client.address}"
+                        f"Запуск {module_name} для {client.number} кошелька | Адрес: {client.address}"
                     )
                     check_in_worker = CheckInWorker(client=client)
-                    await check_in_worker.check_in()
+                    result = await check_in_worker.check_in()
+                    if not result:
+                        logger.info(
+                            f"{module_name} для {client.number} кошелька ранее был выполнен! Переход к следующему действию.\n"
+                            f"Адрес: {client.address}"
+                        )
+                        continue
 
                 if action == 2:
                     logger.info(
-                        f"Запуск голосования для {client.number} кошелька | Адрес: {client.address}"
+                        f"Запуск {module_name} для {client.number} кошелька | Адрес: {client.address}"
                     )
                     vote_worker = VoteWorker(client=client)
-                    await vote_worker.vote()
+                    result = await vote_worker.vote()
+                    if not result:
+                        logger.info(
+                            f"{module_name} для {client.number} кошелька ранее был выполнен! Переход к следующему действию.\n"
+                            f"Адрес: {client.address}"
+                        )
+                        continue
 
                 if action == 3:
                     pass
 
                 if action == 4:
                     logger.info(
-                        f"Создание токена для {client.number} кошелька | Адрес: {client.address}"
+                        f"Запуск {module_name} для {client.number} кошелька | Адрес: {client.address}"
                     )
                     deploy_worker = RWADeployWorker(client=client)
-                    await deploy_worker.deploy()
+                    result = await deploy_worker.deploy()
+                    if not result:
+                        logger.info(
+                            f"{module_name} для {client.number} кошелька ранее был выполнен! Переход к следующему действию.\n"
+                            f"Адрес: {client.address}"
+                        )
+                        continue
 
                 await self.smart_sleep(client.address)
 
