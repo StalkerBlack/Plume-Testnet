@@ -15,7 +15,7 @@ def read_list_from_file(filepath) -> list[str]:
     Читает строки из файла и возвращает их как список.
     """
     try:
-        with open(filepath, 'r') as file:
+        with open(filepath, "r") as file:
             return [line.strip() for line in file if line.strip()]
 
     except Exception as e:
