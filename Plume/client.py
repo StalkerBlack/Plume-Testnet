@@ -47,14 +47,19 @@ class Client:
             w3: AsyncWeb3 = AsyncWeb3(
                 AsyncWeb3.AsyncHTTPProvider(
                     endpoint_uri=self.network.rpc,
-                    request_kwargs={"proxy": self.proxy, "verify_ssl": False},
+                    request_kwargs={
+                        "proxy": self.proxy,
+                        "verify_ssl": False,
+                        "timeout": 300,
+                    },
                 )
             )
         else:
             # Если прокси не переданы, создаем обычный AsyncHTTPProvider
             w3: AsyncWeb3 = AsyncWeb3(
                 AsyncWeb3.AsyncHTTPProvider(
-                    endpoint_uri=self.network.rpc, request_kwargs={"verify_ssl": False}
+                    endpoint_uri=self.network.rpc,
+                    request_kwargs={"verify_ssl": False, "timeout": 300},
                 )
             )
         return w3
@@ -143,13 +148,13 @@ class Client:
                     f"Недостаточно баланса для расчета газа! Адрес: {self.address} | Error: {error}"
                 )
 
-            return None
+            raise error
 
         except ContractCustomError as error:
             logger.info(
-                f"Check In уже ранее был выполнен на кошельке {self.address} | {error}"
+                f"Действие уже ранее был выполнено на кошельке {self.address} | {error}"
             )
-            return None
+            raise error
 
         sign = self.w3.eth.account.sign_transaction(tx_params, self.private_key)
         return self.w3.to_hex(
