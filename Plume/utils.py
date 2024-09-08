@@ -24,6 +24,11 @@ def read_list_from_file(filepath) -> list[str]:
 
 def get_proxies(filepath: str, mode: str = "r") -> list[str]:
     if os.path.exists(filepath):
-        return [Proxy.from_str(proxy=row.strip()
-        if '://' in row.strip() else f'http://{row.strip()}').as_url or None
-        for row in open(filepath, mode) if row]
+        return [
+            Proxy.from_str(
+                proxy=row.strip() if "://" in row.strip() else f"http://{row.strip()}"
+            ).as_url
+            or None
+            for row in open(filepath, mode)
+            if row
+        ]
