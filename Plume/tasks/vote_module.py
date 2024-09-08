@@ -36,17 +36,24 @@ class VoteWorker:
         )._encode_transaction_data()
 
         for _ in range(3):
-            tx_hash = await self.client.send_transaction(
-                to=PROXY_CONTRACT_ADDRESS, data=vote_data
-            )
+            try:
+                tx_hash = await self.client.send_transaction(
+                    to=PROXY_CONTRACT_ADDRESS, data=vote_data
+                )
+            except Exception as error:
+                logger.info(
+                    f"Не удалось проголосовать на {self.client.number} кошельке | Error: {error}\n"
+                    f"Адрес: {self.client.address}"
+                )
+                return False
+
             if tx_hash:
                 logger.success(
                     f"Успешно проголосовали!\nХэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}"
                 )
-            else:
-                logger.info(
-                    f"Не удалось проголосовать на {self.client.number} кошельке: {self.client.address}"
-                )
+            # else:
+            #     logger.info(
+            #         f"Не удалось проголосовать на {self.client.number} кошельке: {self.client.address}"
+            #     )
 
-            # Спим 2 минуты
             await asyncio.sleep(120)
