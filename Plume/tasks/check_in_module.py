@@ -29,15 +29,17 @@ class CheckInWorker:
             implementation_contract.functions.checkIn()._encode_transaction_data()
         )
 
-        tx_hash = await self.client.send_transaction(
-            to=PROXY_CONTRACT_ADDRESS, data=check_in_data
-        )
+        try:
+            tx_hash = await self.client.send_transaction(
+                to=PROXY_CONTRACT_ADDRESS, data=check_in_data
+            )
+        except Exception as error:
+            logger.error(
+                f"Не удалось выполнить Check In на {self.client.number} кошелька: {self.client.address} | Error: {error}"
+            )
+            return False
         if tx_hash:
-            logger.info(
+            logger.success(
                 f"Хэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}"
             )
-        else:
-            logger.error(
-                f"Не удалось выполнить check in на {self.client.number} кошелька: {self.client.address}"
-            )
-        return
+            return True
