@@ -88,17 +88,19 @@ class RWADeployWorker:
         check_in_data = implementation_contract.functions.createToken(
             **data
         )._encode_transaction_data()
-
-        tx_hash = await self.client.send_transaction(
-            to=PROXY_CONTRACT_ADDRESS, data=check_in_data
-        )
-        if tx_hash:
+        try:
+            tx_hash = await self.client.send_transaction(
+                to=PROXY_CONTRACT_ADDRESS, data=check_in_data
+            )
+        except Exception as error:
             logger.info(
+                f"Не удалось выполнить RWA Create Token на {self.client.number} кошельке | Error: {error}\n"
+                f"Адрес: {self.client.address}"
+            )
+            return False
+
+        if tx_hash:
+            logger.success(
                 f"Хэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}"
             )
-        else:
-            logger.info(
-                f"Не удалось выполнить RWA Create Token на {self.client.number} кошельке: {self.client.address}"
-            )
-
-        return
+            return True
