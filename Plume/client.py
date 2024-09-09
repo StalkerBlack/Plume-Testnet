@@ -33,7 +33,7 @@ class Client:
             self.w3.eth.account.from_key(private_key=private_key).address
         )
 
-        log_message = f"Инициализирован {self.number} клиент | Адрес {self.address} | Прокси: {self.proxy}"
+        log_message = f"Инициализирован {self.number} клиент | Адрес {self.address} | Прокси: {bool(self.proxy)}"
         logger.info(log_message)
 
     def get_web3(self) -> AsyncWeb3:
