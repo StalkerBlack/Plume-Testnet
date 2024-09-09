@@ -35,7 +35,7 @@ class CheckInWorker:
             )
         except Exception as error:
             logger.error(
-                f"Не удалось выполнить Check In на {self.client.number} кошелька: {self.client.address} | Error: {error}"
+                f"Не удалось выполнить Check In на {self.client.number} кошельке: {self.client.address} | Error: {error}"
             )
             return False
         if tx_hash:
