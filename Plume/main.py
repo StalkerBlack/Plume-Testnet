@@ -5,11 +5,12 @@ import sys
 
 from datetime import timedelta, datetime
 from loguru import logger
-from typing import Sequence, List, Dict
+from typing import Sequence, Dict
 
 from client import Client
 from config import PRIVATE_KEYS, PROXIES
 from tasks.check_in_module import CheckInWorker
+from tasks.faucet_module import FaucetWorker
 from tasks.vote_module import VoteWorker
 from tasks.rwa_deploy_module import RWADeployWorker
 
@@ -93,6 +94,7 @@ class Runner:
         actions_hashmap: Dict[int, str] = {
             1: "Check In",
             2: "Voting",
+            # 3: "Faucet",
             4: "RWA Create Token",
         }
         index = 0
@@ -101,15 +103,16 @@ class Runner:
             wallet_index: int = random.choice(range(len(self.private_keys)))
             private_key: str = self.private_keys.pop(wallet_index)
 
-            while actions_hashmap:
-                action: int = random.choice(actions_hashmap)
-                module_name: str = actions_hashmap.pop(action)
-                # available_actions.remove(action)
+            available_actions: Dict[int, str] = actions_hashmap.copy()
+
+            while available_actions:
+                action: int = random.choice(list(available_actions.keys()))
+                module_name: str = available_actions.pop(action)
                 proxy = await self.get_proxy_for_account(
                     index=wallet_index, private_key=private_key
                 )
                 logger.info(
-                    f"Wallet № {wallet_index + 1} | Action № {action} | Use Proxy: {bool(proxy)}"
+                    f"{index} | Wallet № {wallet_index + 1} | Action № {action} | Use Proxy: {bool(proxy)}"
                 )
 
                 client = Client(
@@ -146,7 +149,17 @@ class Runner:
                         continue
 
                 if action == 3:
-                    pass
+                    logger.info(
+                        f"Запуск {module_name} для {client.number} кошелька | Адрес: {client.address}"
+                    )
+                    faucet_worker = FaucetWorker(client=client)
+                    try:
+                        await faucet_worker.get_tokens_from_faucet()
+
+                    except Exception as error:
+                        logger.info(
+                            f"Возникла ошибка в процессе работы {module_name} для {client.number} кошелька | Адрес: {client.address} | Ошибка: {str(error)}"
+                        )
 
                 if action == 4:
                     logger.info(
