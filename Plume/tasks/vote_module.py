@@ -9,6 +9,7 @@ from web3.eth.async_eth import ChecksumAddress, AsyncContract
 from Plume.client import Client
 from Plume.data.config import VOTE
 from Plume.utils import read_json
+from Plume.functions import ensure_sufficient_balance
 
 
 class VoteWorker:
@@ -16,6 +17,7 @@ class VoteWorker:
         self.client: Client = client
         self.abi = read_json(VOTE)
 
+    @ensure_sufficient_balance(min_amount=0.00002)
     async def vote(self):
         PROXY_CONTRACT_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
             "0xbd06be7621be8f92101bf732773e539a4daf7e3f"
@@ -49,7 +51,8 @@ class VoteWorker:
 
             if tx_hash:
                 logger.success(
-                    f"Успешно проголосовали!\nХэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}"
+                    f"Успешно проголосовали!\nХэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}\n"
+                    f"Продолжим голосование через 2 минуты ..."
                 )
             # else:
             #     logger.info(

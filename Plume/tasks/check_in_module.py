@@ -6,6 +6,7 @@ from web3.eth.async_eth import AsyncContract
 from Plume.client import Client
 from Plume.utils import read_json
 from Plume.data.config import CHECK_IN_ABI
+from Plume.functions import ensure_sufficient_balance
 
 
 class CheckInWorker:
@@ -13,6 +14,7 @@ class CheckInWorker:
         self.client: Client = client
         self.abi = read_json(CHECK_IN_ABI)
 
+    @ensure_sufficient_balance(min_amount=0.00002)
     async def check_in(self):
         PROXY_CONTRACT_ADDRESS = Web3.to_checksum_address(
             "0x8Dc5b3f1CcC75604710d9F464e3C5D2dfCAb60d8"

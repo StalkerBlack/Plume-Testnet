@@ -11,6 +11,7 @@ from web3.eth.async_eth import AsyncContract, ChecksumAddress
 from Plume.client import Client
 from Plume.data.config import RWA_DEPLOY_ABI
 from Plume.utils import read_json
+from Plume.functions import ensure_sufficient_balance
 
 
 class RWADeployWorker:
@@ -18,6 +19,7 @@ class RWADeployWorker:
         self.client: Client = client
         self.abi = read_json(RWA_DEPLOY_ABI)
 
+    @ensure_sufficient_balance(min_amount=0.00002)
     async def deploy(self):
         PROXY_CONTRACT_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
             "0x485D972889Ee8fd0512403E32eE94dE5c7a5DC7b"
