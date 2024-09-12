@@ -16,7 +16,7 @@ class CulturedWorker:
         self.client: Client = client
         self.abi = read_json(CULTURED)
 
-    @ensure_sufficient_balance(min_amount=0.00002)
+    @ensure_sufficient_balance(min_amount=0.0005)
     async def cultured(self):
         PROXY_CONTRACT_ADDRESS: ChecksumAddress = self.client.w3.to_checksum_address(
             "0x032139f44650481f4d6000c078820B8E734bF253"
