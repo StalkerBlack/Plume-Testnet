@@ -56,5 +56,7 @@ class CulturedWorker:
                     f"Успешно сделали prediction на {pair} пару на {self.client.number} кошельке | "
                     f"Хэш транзакции: {self.client.network.explorer + tx_hash}\nАдрес: {self.client.address}"
                 )
-                await asyncio.sleep(25, 45)
+                delay = random.randint(25, 45)
+                logger.info(f"Ждем {delay} секунд до начала следующего prediction | Адрес {self.client.address}")
+                await asyncio.sleep(delay)
         return True
