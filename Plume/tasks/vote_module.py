@@ -30,14 +30,14 @@ class VoteWorker:
             address=IMPLEMENTATION_CONTRACT_ADDRESS, abi=self.abi
         )
 
-        lst_data = [18, 21]
-        data = random.choice(lst_data)
-
-        vote_data = implementation_contract.functions.vote(
-            data
-        )._encode_transaction_data()
+        data = [51, 40, 42, 44, 39, 49, 38, 50, 48]
 
         for _ in range(3):
+            random_vote = random.choice(data)
+            vote_data = implementation_contract.functions.vote(
+                random_vote
+            )._encode_transaction_data()
+
             try:
                 tx_hash = await self.client.send_transaction(
                     to=PROXY_CONTRACT_ADDRESS, data=vote_data
@@ -54,9 +54,11 @@ class VoteWorker:
                     f"Успешно проголосовали!\nХэш транзакции: {self.client.network.explorer + tx_hash} | Адрес: {self.client.address}\n"
                     f"Продолжим голосование через 2 минуты ..."
                 )
+            delay = random.randint(45, 120)
+            logger.info(f"Ждем {delay} секунд до начала следующего голосования | Адрес {self.client.address}")
             # else:
             #     logger.info(
             #         f"Не удалось проголосовать на {self.client.number} кошельке: {self.client.address}"
             #     )
 
-            await asyncio.sleep(120)
+            await asyncio.sleep(delay)
