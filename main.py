@@ -84,8 +84,9 @@ class Runner:
             """
             1 - CHECK IN           Регистрация
             2 - VOTING             Голосование
-            3 - STONKS             Ставки
+
             4 - CREATE TOKEN (NFT) Создание Токена
+            5 - Cultured           Предугадать движение цены
 
             """
         )

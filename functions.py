@@ -5,8 +5,8 @@ from web3 import AsyncWeb3
 
 from decimal import Decimal
 
-from Plume.tasks.faucet_module import FaucetWorker
-from Plume.client import Client
+from tasks.faucet_module import FaucetWorker
+from client import Client
 
 
 def ensure_sufficient_balance(min_amount: float):

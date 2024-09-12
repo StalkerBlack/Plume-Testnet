@@ -5,10 +5,10 @@ from loguru import logger
 from typing import List
 from web3.eth.async_eth import AsyncContract, ChecksumAddress
 
-from Plume.utils import read_json
-from Plume.data.config import CULTURED
-from Plume.client import Client
-from Plume.functions import ensure_sufficient_balance
+from utils import read_json
+from data.config import CULTURED
+from client import Client
+from functions import ensure_sufficient_balance
 
 
 class CulturedWorker:

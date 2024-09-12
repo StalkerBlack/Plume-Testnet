@@ -6,10 +6,10 @@ from loguru import logger
 from web3 import Web3
 from web3.eth.async_eth import ChecksumAddress, AsyncContract
 
-from Plume.client import Client
-from Plume.data.config import VOTE
-from Plume.utils import read_json
-from Plume.functions import ensure_sufficient_balance
+from client import Client
+from data.config import VOTE
+from utils import read_json
+from functions import ensure_sufficient_balance
 
 
 class VoteWorker:

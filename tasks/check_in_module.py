@@ -3,10 +3,10 @@ from web3 import Web3
 from web3.eth.async_eth import AsyncContract
 
 
-from Plume.client import Client
-from Plume.utils import read_json
-from Plume.data.config import CHECK_IN_ABI
-from Plume.functions import ensure_sufficient_balance
+from client import Client
+from utils import read_json
+from data.config import CHECK_IN_ABI
+from functions import ensure_sufficient_balance
 
 
 class CheckInWorker:

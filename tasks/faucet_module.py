@@ -9,12 +9,11 @@ from loguru import logger
 from typing import Any
 from web3 import Web3
 from web3.eth.async_eth import AsyncContract, ChecksumAddress
-from web3.exceptions import Web3RPCError
 
-from Plume.client import Client
-from Plume.config import CAP_MONSTER_API
-from Plume.utils import read_json
-from Plume.data.config import FAUCET
+from client import Client
+from config import CAP_MONSTER_API
+from utils import read_json
+from data.config import FAUCET
 
 
 class FaucetWorker:
