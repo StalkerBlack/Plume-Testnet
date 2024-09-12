@@ -1,10 +1,6 @@
-import random
-import time
-import requests
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Union
-from datetime import datetime
 
 
 @dataclass
@@ -126,7 +122,7 @@ class Network:
 
 
 Arbitrum = Network(
-    name='arbitrum',
+    name='Arbitrum',
     rpc='https://rpc.ankr.com/arbitrum/',
     chain_id=42161,
     eip1559_tx=True,
@@ -136,31 +132,10 @@ Arbitrum = Network(
 
 
 Plume = Network(
-    name='plume testnet',
+    name='Plume Network',
     rpc='https://testnet-rpc.plumenetwork.xyz/http',
     chain_id=161221135,
     eip1559_tx=True,
     coin_symbol='ETH',
     explorer='https://testnet-explorer.plumenetwork.xyz/tx/',
 )
-
-
-
-def check_proxy_ip(proxies):
-    try:
-        response = requests.get("http://httpbin.org/ip", proxies=proxies)
-        print_with_time(f"\033[32m Прокси IP: {response.json()['origin']} \033[0m")
-    except Exception as e:
-        print_with_time(f"\033[31m Не удалось получить IP через прокси: {str(e)} \033[0m")
-
-
-def print_with_time(message: str, flush: bool = True):
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print(f"[{current_time}] {message}", flush=flush)
-
-
-
-def sleep(up, to):
-    delay = random.uniform(up, to)
-    print_with_time(f"\033[34m Ожидаем {delay:.2f} секунд ...\033[0m")
-    time.sleep(delay)
