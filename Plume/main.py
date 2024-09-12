@@ -13,6 +13,7 @@ from tasks.check_in_module import CheckInWorker
 from tasks.faucet_module import FaucetWorker
 from tasks.vote_module import VoteWorker
 from tasks.rwa_deploy_module import RWADeployWorker
+from tasks.cultured_module import CulturedWorker
 
 
 from settings import (
@@ -96,6 +97,7 @@ class Runner:
             2: "Voting",
             # 3: "Faucet",
             4: "RWA Create Token",
+            5: "Cultured"
         }
         index = 0
 
@@ -116,7 +118,7 @@ class Runner:
                 )
 
                 client = Client(
-                    number=index + 1,
+                    number=wallet_index + 1,
                     private_key=private_key,
                     network=GLOBAL_NETWORK,
                     proxy=proxy,
@@ -171,6 +173,22 @@ class Runner:
                         logger.info(
                             f"{module_name} для {client.number} кошелька ранее был выполнен! Переход к следующему действию.\n"
                             f"Адрес: {client.address}"
+                        )
+                        continue
+
+                if action == 5:
+                    logger.info(
+                        f"Запуск {module_name} для {client.number} кошелька | Адрес: {client.address}"
+                    )
+                    cultured_worker = CulturedWorker(client=client)
+                    result = await cultured_worker.cultured()
+                    if result:
+                        logger.success(
+                            f"Сделали всевозможные prediction для модуля {module_name} на {client.number} кошельке | Адрес: {client.address}"
+                        )
+                    else:
+                        logger.info(
+                            f"Возникла ошибка в процессе работы {module_name} для {client.number} кошелька | Адрес: {client.address}"
                         )
                         continue
 
