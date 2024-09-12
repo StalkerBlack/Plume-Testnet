@@ -1,31 +1,60 @@
+import asyncio
 import random
-from ..utils import read_json
-from ..data.config import CULTURED
-from ..models import sleep
+
+from loguru import logger
+from typing import List
+from web3.eth.async_eth import AsyncContract, ChecksumAddress
+
+from Plume.utils import read_json
+from Plume.data.config import CULTURED
+from Plume.client import Client
+from Plume.functions import ensure_sufficient_balance
 
 
-def cultured(client):
-    PROXY_CONTRACT_ADDRESS = '0x032139f44650481f4d6000c078820B8E734bF253'
-    IMPLEMENTATION_CONTRACT_ADDRESS = '0xa92B6A07c21Ea051F833423871c34487Ecc670D6'
-    IMPLEMENTATION_ABI = read_json(CULTURED)
+class CulturedWorker:
+    def __init__(self, client: Client):
+        self.client: Client = client
+        self.abi = read_json(CULTURED)
 
-    web3 = client.w3
+    @ensure_sufficient_balance(min_amount=0.00002)
+    async def cultured(self):
+        PROXY_CONTRACT_ADDRESS: ChecksumAddress = self.client.w3.to_checksum_address(
+            "0x032139f44650481f4d6000c078820B8E734bF253"
+        )
+        IMPLEMENTATION_CONTRACT_ADDRESS: ChecksumAddress = self.client.w3.to_checksum_address(
+            "0xa92B6A07c21Ea051F833423871c34487Ecc670D6"
+        )
+        implementation_contract: AsyncContract = self.client.w3.eth.contract(
+            address=IMPLEMENTATION_CONTRACT_ADDRESS, abi=self.abi
+        )
 
-    implementation_contract = web3.eth.contract(address=IMPLEMENTATION_CONTRACT_ADDRESS, abi=IMPLEMENTATION_ABI)
+        pairs_indexes: List[int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27]
 
-    bools = [True, False]
-    dates = [24, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 6, 8, 10, 12, 3, 4, 5, 7, 9, 11, 13, 21, 22, 23, 25]
-    for idx, date in enumerate(dates, start=1):
-        random_bool = random.choice(bools)
-        cultured_data = implementation_contract.functions.predictPriceMovement(date, random_bool)._encode_transaction_data()
-        sleep(15,39)
+        for idx, pair in enumerate(pairs_indexes, start=1):
+            random_prediction: bool = random.choice([True, False])
+            cultured_data = implementation_contract.functions.predictPriceMovement(
+                pair,
+                random_prediction
+            )._encode_transaction_data()
 
-        try:
-            tx_hash = client.send_transaction(
-                to=PROXY_CONTRACT_ADDRESS,
-                data=cultured_data
-            )
+            try:
+                tx_hash = await self.client.send_transaction(
+                    to=PROXY_CONTRACT_ADDRESS,
+                    data=cultured_data
+                )
 
-            yield tx_hash, idx
-        except Exception as e:
-            yield None, idx
+            except Exception as error:
+                logger.info(
+                    f"Не удалось выполнить RWA Create Token на {self.client.number} кошельке | Error: {error}\n"
+                    f"Адрес: {self.client.address}"
+                )
+                continue
+
+            if tx_hash:
+
+                logger.success(
+                    f"Успешно сделали prediction на {pair} пару на {self.client.number} кошельке | "
+                    f"Хэш транзакции: {self.client.network.explorer + tx_hash}\nАдрес: {self.client.address}"
+                )
+                await asyncio.sleep(25, 45)
+        return True
