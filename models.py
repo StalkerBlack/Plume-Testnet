@@ -121,16 +121,6 @@ class Network:
         return f'{self.name}'
 
 
-Arbitrum = Network(
-    name='Arbitrum',
-    rpc='https://rpc.ankr.com/arbitrum/',
-    chain_id=42161,
-    eip1559_tx=True,
-    coin_symbol='ETH',
-    explorer='https://arbiscan.io/',
-)
-
-
 Plume = Network(
     name='Plume Network',
     rpc='https://testnet-rpc.plumenetwork.xyz/http',
