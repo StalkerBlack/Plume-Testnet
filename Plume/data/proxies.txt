@@ -1,2 +1,0 @@
-# http://user:password@ip:port
-# username:passwor@host:port
