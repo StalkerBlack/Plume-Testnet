@@ -9,7 +9,7 @@
 
 1. ***Clone the repository on local machine:***
 
-```
+```bash
 git clone https://github.com/StalkerBlack/Plume-Testnet
 cd Plume-Testnet
 ```
@@ -17,18 +17,18 @@ cd Plume-Testnet
 2. ***Creating and activation virtual environment***
 
 - Windows:
-```
+```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 - macOS / Linux:
-```
+```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 3. ***Installing dependencies***
-```
+```bash
 pip install -r requirements.txt
 ```
 
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 - Add ***CapMonster API Key*** in `config.py` file  ***->***  **[CapMonster site](https://capmonster.cloud/)**
 
 5. ***If you want change settings***
-```
+```python
 SLEEP_MODE = True                        # Sleep between wallets
 SLEEP_TIME = (480, 900)                  # 8 - 15 minutes
 SHUFFLE_WALLETS = True                   # Shuffle wallets or not
