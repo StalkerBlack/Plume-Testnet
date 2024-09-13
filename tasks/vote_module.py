@@ -17,7 +17,7 @@ class VoteWorker:
         self.client: Client = client
         self.abi = read_json(VOTE)
 
-    @ensure_sufficient_balance(min_amount=0.00002)
+    @ensure_sufficient_balance(min_amount=0.05)
     async def vote(self):
         PROXY_CONTRACT_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
             "0xbd06be7621be8f92101bf732773e539a4daf7e3f"

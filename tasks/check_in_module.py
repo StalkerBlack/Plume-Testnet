@@ -14,7 +14,7 @@ class CheckInWorker:
         self.client: Client = client
         self.abi = read_json(CHECK_IN_ABI)
 
-    @ensure_sufficient_balance(min_amount=0.00002)
+    @ensure_sufficient_balance(min_amount=0.05)
     async def check_in(self):
         PROXY_CONTRACT_ADDRESS = Web3.to_checksum_address(
             "0x8Dc5b3f1CcC75604710d9F464e3C5D2dfCAb60d8"

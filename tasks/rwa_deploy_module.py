@@ -19,7 +19,7 @@ class RWADeployWorker:
         self.client: Client = client
         self.abi = read_json(RWA_DEPLOY_ABI)
 
-    @ensure_sufficient_balance(min_amount=0.00002)
+    @ensure_sufficient_balance(min_amount=0.05)
     async def deploy(self):
         PROXY_CONTRACT_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
             "0x485D972889Ee8fd0512403E32eE94dE5c7a5DC7b"
